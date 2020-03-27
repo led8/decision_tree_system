@@ -19,9 +19,8 @@
     height: 100vh;
   }
 
-  .disabled {
+  .hide {
     visibility: hidden;
-    opacity: 0;
   }
 
   li {
@@ -41,7 +40,7 @@
 
 <script>
 
-  var hash = { "results":
+  var hash = { "questions":
               [
                 { 0: { "question": "What's he called ?",
                     "tree_answer": null,
@@ -77,19 +76,19 @@
                     ]
                   },
                 },
-                { 4: { "question": "What color is he ?",
-                    "tree_answer": null,
-                    "answers": [
-                      [ "Black", 6 ],
-                      [ "Blue", 6 ]
-                    ]
-                  },
-                },
-                { 5: { "question": "What color is she ?",
+                { 4: { "question": "What color is she ?",
                     "tree_answer": null,
                     "answers": [
                       [ "White", 6 ],
                       [ "Pink", 6 ]
+                    ]
+                  },
+                },
+                { 5: { "question": "What color is he ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "Black", 6 ],
+                      [ "Blue", 6 ]
                     ]
                   },
                 },
@@ -108,24 +107,32 @@
   var answers_ul = $('.answers')
   var answers_html = "";
   var answers = [];
+  var answer = "";
+  var question_index = null;
+  var question = "";
   var next_question = $('.next');
   var prev_question = $('.prev');
-  var index = 0;
+  var start_index = 0;
   var i;
   var selected_index = null;
   var tree_index = null;
 
   function start() {
-    prev_question.addClass('disabled');
+    prev_question.addClass('hide');
+    next_question.prop("disabled", true);
 
-    question_div.html(`<h1>${hash.results[index][index].question}</h1>`);
+    question = hash.questions[start_index][start_index].question
+    question_div.html(`<h1>${question}</h1>`);
 
-    answers = [...hash.results[index][index].answers, hash.results[index][index].tree_answer]
+    answers = [...hash.questions[start_index][start_index].answers, hash.questions[start_index][start_index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
+
     for (i = 0; i < answers.length; i++) {
-      answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
-                        ${answers[i]}
-                      </li>`
+      answer = answers[i][0]
+      question_index = answers[i][1]
+
+      answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+
       answers_ul.html(answers_html);
     }
   }; start();
@@ -133,47 +140,59 @@
 
   function next() {
     var answers_html = "";
-    index ++
+    next_question.prop("disabled", true);
 
-    console.log('selected index on submit:' + selected_index)
 
-    question_div.html(`<h1>${hash.results[index][index].question}</h1>`);
+    question = hash.questions[selected_index][selected_index].question
+    question_div.html(`<h1>${question}</h1>`);
 
-    answers = [...hash.results[index][index].answers, hash.results[index][index].tree_answer]
+    answers = [...hash.questions[selected_index][selected_index].answers, hash.questions[selected_index][selected_index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
+
     for (i = 0; i < answers.length; i++) {
-      answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
-                        ${answers[i]}
-                      </li>`
+      answer = answers[i][0]
+      question_index = answers[i][1]
+
+      answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+
       answers_ul.html(answers_html);
     }
 
-    if (index > 0) prev_question.removeClass('disabled');
-    if (index == hash.results.length - 1) next_question.addClass('disabled');
+    if (question_index > 0) prev_question.removeClass('hide');
+    if (selected_index == hash.questions.length - 1) next_question.addClass('hide');
+
+    console.log('selected index on submit:' + selected_index);
+    console.log('next question index:' + selected_index);
   };
 
   function prev() {
     var answers_html = "";
-    index --
 
-    question_div.html(`<h1>${hash.results[index][index].question}</h1>`);
+    question = hash.questions[selected_index][selected_index].question
+    question_div.html(`<h1>${question}</h1>`);
 
-    answers = [...hash.results[index][index].answers, hash.results[index][index].tree_answer]
+    answers = [...hash.questions[selected_index][selected_index].answers, hash.questions[selected_index][selected_index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
+
     for (i = 0; i < answers.length; i++) {
-      answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
-                        ${answers[i]}
-                      </li>`
+      answer = answers[i][0]
+      question_index = answers[i][1]
+
+      answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+
       answers_ul.html(answers_html);
     }
 
-    if (index == 0) prev_question.addClass('disabled');
-    if (index < hash.results.length - 1) next_question.removeClass('disabled');
+    if (index == 0) prev_question.addClass('hide');
+    if (index < hash.questions.length - 1) next_question.removeClass('hide');
   };
 
-  function selectAnswer(i) {
-    selected_index = i;
-    tree_index = answers.indexOf(hash.results[index][index].tree_answer)
+  function selectAnswer(question_index) {
+    selected_index = question_index;
+    next_question.prop("disabled", false);
+
+    // tree_index = answers.indexOf(hash.questions[index][index].tree_answer)
+
     console.log('selected index on input:' + selected_index)
   }
 
