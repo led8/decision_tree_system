@@ -43,43 +43,63 @@
 
   var hash = { "results":
               [
-                { "question": "What's he called ?",
-                  "tree_answer": null,
-                  "answers": [
-                    "Bone",
-                    "Ivory",
-                    "Skin" ]
+                { 0: { "question": "What's he called ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "Bone", 1 ],
+                      [ "Ivory", 1 ],
+                      [ "Skin", 1 ]
+                    ]
+                  },
                 },
-                { "question": "How tall is he ?",
-                  "tree_answer": null,
-                  "answers": [
-                  "8",
-                  "2",
-                  "6" ]
+                { 1: { "question": "How tall is he ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "8", 2 ],
+                      [ "2", 2 ],
+                      [ "6", 2 ]
+                    ]
+                  },
                 },
-                { "question": "How old is he ?",
-                  "tree_answer": null,
-                  "answers": [
-                    "1",
-                    "3",
-                    "5" ]
+                { 2: { "question": "How old is he ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "1", 3 ],
+                      [ "3", 3 ],
+                      [ "5", 3 ]
+                    ]
+                  },
                 },
-                { "question": "What gender is he ?",
-                  "tree_answer": "Male",
-                  "answers": [
-                    "Female" ]
+                { 3: { "question": "What gender is he ?",
+                    "tree_answer": [ "Male", 5 ],
+                    "answers": [
+                      [ "Female", 4 ]
+                    ]
+                  },
                 },
-                { "question": "What color is he ?",
-                  "tree_answer": null,
-                  "answers": [
-                  "Black",
-                  "Blue" ]
+                { 4: { "question": "What color is he ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "Black", 6 ],
+                      [ "Blue", 6 ]
+                    ]
+                  },
                 },
-                { "question": "What color is she ?",
-                  "tree_answer": null,
-                  "answers": [
-                  "White",
-                  "Pink" ]
+                { 5: { "question": "What color is she ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "White", 6 ],
+                      [ "Pink", 6 ]
+                    ]
+                  },
+                },
+                { 6: { "question": "Is it for special gift ?",
+                    "tree_answer": null,
+                    "answers": [
+                      [ "Yes", 7 ],
+                      [ "No", 7 ]
+                    ]
+                  },
                 },
               ]
             }
@@ -98,9 +118,9 @@
   function start() {
     prev_question.addClass('disabled');
 
-    question_div.html(`<h1>${hash.results[index].question}</h1>`);
+    question_div.html(`<h1>${hash.results[index][index].question}</h1>`);
 
-    answers = [...hash.results[index].answers, hash.results[index].tree_answer]
+    answers = [...hash.results[index][index].answers, hash.results[index][index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
     for (i = 0; i < answers.length; i++) {
       answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
@@ -115,9 +135,11 @@
     var answers_html = "";
     index ++
 
-    question_div.html(`<h1>${hash.results[index].question}</h1>`);
+    console.log('selected index on submit:' + selected_index)
 
-    answers = [...hash.results[index].answers, hash.results[index].tree_answer]
+    question_div.html(`<h1>${hash.results[index][index].question}</h1>`);
+
+    answers = [...hash.results[index][index].answers, hash.results[index][index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
     for (i = 0; i < answers.length; i++) {
       answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
@@ -134,9 +156,9 @@
     var answers_html = "";
     index --
 
-    question_div.html(`<h1>${hash.results[index].question}</h1>`);
+    question_div.html(`<h1>${hash.results[index][index].question}</h1>`);
 
-    answers = [...hash.results[index].answers, hash.results[index].tree_answer]
+    answers = [...hash.results[index][index].answers, hash.results[index][index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
     for (i = 0; i < answers.length; i++) {
       answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
@@ -151,7 +173,8 @@
 
   function selectAnswer(i) {
     selected_index = i;
-    tree_index = answers.indexOf(hash.results[index].tree_answer)
+    tree_index = answers.indexOf(hash.results[index][index].tree_answer)
+    console.log('selected index on input:' + selected_index)
   }
 
 
