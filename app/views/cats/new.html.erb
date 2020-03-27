@@ -1,0 +1,158 @@
+<div class="container">
+  <div class="jumbotron">
+    <div class="question col-6 offset-3 display-4"></div>
+
+    <hr class="my-4">
+    <ul class="answers col-6 offset-3 list-group"></ul>
+
+    <div class="col-6 offset-3 mt-5">
+      <button onclick="prev()" type="button" class="prev btn btn-primary">previous question</button>
+      <button onclick="next()" type="button" class="next btn btn-success">next question</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+
+  body {
+    height: 100vh;
+  }
+
+  .disabled {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  li {
+    cursor: pointer;
+  }
+
+  .selected {
+    background: lightblue;
+    color: white;
+  }
+   .selected:hover {
+    background: lightblue;
+    color: white;
+  }
+
+</style>
+
+<script>
+
+  var hash = { "results":
+              [
+                { "question": "What's he called ?",
+                  "tree_answer": null,
+                  "answers": [
+                    "Bone",
+                    "Ivory",
+                    "Skin" ]
+                },
+                { "question": "How tall is he ?",
+                  "tree_answer": null,
+                  "answers": [
+                  "8",
+                  "2",
+                  "6" ]
+                },
+                { "question": "How old is he ?",
+                  "tree_answer": null,
+                  "answers": [
+                    "1",
+                    "3",
+                    "5" ]
+                },
+                { "question": "What gender is he ?",
+                  "tree_answer": "Male",
+                  "answers": [
+                    "Female" ]
+                },
+                { "question": "What color is he ?",
+                  "tree_answer": null,
+                  "answers": [
+                  "Black",
+                  "Blue" ]
+                },
+                { "question": "What color is she ?",
+                  "tree_answer": null,
+                  "answers": [
+                  "White",
+                  "Pink" ]
+                },
+              ]
+            }
+
+  var question_div = $('.question');
+  var answers_ul = $('.answers')
+  var answers_html = "";
+  var answers = [];
+  var next_question = $('.next');
+  var prev_question = $('.prev');
+  var index = 0;
+  var i;
+  var selected_index = null;
+  var tree_index = null;
+
+  function start() {
+    prev_question.addClass('disabled');
+
+    question_div.html(`<h1>${hash.results[index].question}</h1>`);
+
+    answers = [...hash.results[index].answers, hash.results[index].tree_answer]
+    answers = answers.filter(function(element){ return element != null })
+    for (i = 0; i < answers.length; i++) {
+      answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
+                        ${answers[i]}
+                      </li>`
+      answers_ul.html(answers_html);
+    }
+  }; start();
+
+
+  function next() {
+    var answers_html = "";
+    index ++
+
+    question_div.html(`<h1>${hash.results[index].question}</h1>`);
+
+    answers = [...hash.results[index].answers, hash.results[index].tree_answer]
+    answers = answers.filter(function(element){ return element != null })
+    for (i = 0; i < answers.length; i++) {
+      answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
+                        ${answers[i]}
+                      </li>`
+      answers_ul.html(answers_html);
+    }
+
+    if (index > 0) prev_question.removeClass('disabled');
+    if (index == hash.results.length - 1) next_question.addClass('disabled');
+  };
+
+  function prev() {
+    var answers_html = "";
+    index --
+
+    question_div.html(`<h1>${hash.results[index].question}</h1>`);
+
+    answers = [...hash.results[index].answers, hash.results[index].tree_answer]
+    answers = answers.filter(function(element){ return element != null })
+    for (i = 0; i < answers.length; i++) {
+      answers_html += `<li onclick="selectAnswer(${i})" class="list-group-item">
+                        ${answers[i]}
+                      </li>`
+      answers_ul.html(answers_html);
+    }
+
+    if (index == 0) prev_question.addClass('disabled');
+    if (index < hash.results.length - 1) next_question.removeClass('disabled');
+  };
+
+  function selectAnswer(i) {
+    selected_index = i;
+    tree_index = answers.indexOf(hash.results[index].tree_answer)
+  }
+
+
+</script>
