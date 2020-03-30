@@ -54,63 +54,64 @@
 
 <script>
 
+  // All variables
   var hash = { "questions":
               [
                 { 0: { "question": "What's he called ?",
                     "tree_answer": null,
                     "answers": [
-                      [ "Bone", 1 ],
-                      [ "Ivory", 1 ],
-                      [ "Skin", 1 ]
+                      [ "Bone", { "next_qst":1 }, { "prev_qst":0 }, { "prev_qst_if_not_answered":0 } ],
+                      [ "Ivory", { "next_qst":1 }, { "prev_qst":0 }, { "prev_qst_if_not_answered":0 } ],
+                      [ "Skin", { "next_qst":1 }, { "prev_qst":0 }, { "prev_qst_if_not_answered":0 } ]
                     ]
                   },
                 },
                 { 1: { "question": "How tall is he ?",
                     "tree_answer": null,
                     "answers": [
-                      [ "8", 2 ],
-                      [ "2", 2 ],
-                      [ "6", 2 ]
+                      [ "8", { "next_qst":2 }, { "prev_qst":0 }, { "prev_qst_if_not_answered":1 } ],
+                      [ "2", { "next_qst":2 }, { "prev_qst":0 }, { "prev_qst_if_not_answered":1 } ],
+                      [ "6", { "next_qst":2 }, { "prev_qst":0 }, { "prev_qst_if_not_answered":1 } ]
                     ]
                   },
                 },
                 { 2: { "question": "How old is he ?",
                     "tree_answer": null,
                     "answers": [
-                      [ "1", 3 ],
-                      [ "3", 3 ],
-                      [ "5", 3 ]
+                      [ "1", { "next_qst":3 }, { "prev_qst":1 }, { "prev_qst_if_not_answered":2 } ],
+                      [ "3", { "next_qst":3 }, { "prev_qst":1 }, { "prev_qst_if_not_answered":2 } ],
+                      [ "5", { "next_qst":3 }, { "prev_qst":1 }, { "prev_qst_if_not_answered":2 } ]
                     ]
                   },
                 },
                 { 3: { "question": "What gender is he ?",
-                    "tree_answer": [ "Male", 5 ],
+                    "tree_answer": [ "Male", { "next_qst":5 }, { "prev_qst":2 }, { "prev_qst_if_not_answered":3 } ],
                     "answers": [
-                      [ "Female", 4 ]
+                      [ "Female", { "next_qst":4 }, { "prev_qst":2 }, { "prev_qst_if_not_answered":3 } ]
                     ]
                   },
                 },
                 { 4: { "question": "What color is she ?",
                     "tree_answer": null,
                     "answers": [
-                      [ "White", 6 ],
-                      [ "Pink", 6 ]
+                      [ "White", { "next_qst":6 }, { "prev_qst":3 }, { "prev_qst_if_not_answered":4 }],
+                      [ "Pink", { "next_qst":6 }, { "prev_qst":3 }, { "prev_qst_if_not_answered":4 } ]
                     ]
                   },
                 },
                 { 5: { "question": "What color is he ?",
                     "tree_answer": null,
                     "answers": [
-                      [ "Black", 6 ],
-                      [ "Blue", 6 ]
+                      [ "Black", { "next_qst":6 }, { "prev_qst":3 }, { "prev_qst_if_not_answered":5 } ],
+                      [ "Blue", { "next_qst":6 }, { "prev_qst":3 }, { "prev_qst_if_not_answered":5 } ]
                     ]
                   },
                 },
                 { 6: { "question": "Is it for special gift ?",
                     "tree_answer": null,
                     "answers": [
-                      [ "Yes", 7 ],
-                      [ "No", 7 ]
+                      [ "Yes", { "next_qst":7 }, { "prev_qst":3 }, { "prev_qst_if_not_answered":6 } ],
+                      [ "No", { "next_qst":7 }, { "prev_qst":3 }, { "prev_qst_if_not_answered":6 } ]
                     ]
                   },
                 },
@@ -122,18 +123,23 @@
   var answers_html = "";
   var answers = [];
   var answer = "";
-  var question_index = null;
+  var next_qst_index = null;
+  var prev_qst_index = null;
+  var prev_qst_index_if_not_answered = null;
   var question = "";
   var next_question = $('.next');
   var prev_question = $('.prev');
   var start_index = 0;
   var i;
-  var selected_index = null;
-  var tree_index = null;
+  var selected_index_to_next = null;
+  var selected_index_to_prev = null;
   var stepper_width = '';
   var stepper_progression = $('.stepper-progression');
   var stepper_count = $('.stepper-count');
+  var answered = false;
+  var number_of_prev_click = 0;
 
+  // Function is called first when document is ready
   function start() {
     prev_question.addClass('hide');
     next_question.prop("disabled", true);
@@ -141,83 +147,161 @@
     question = hash.questions[start_index][start_index].question
     question_div.html(`<h1>${question}</h1>`);
 
-    answers = [...hash.questions[start_index][start_index].answers, hash.questions[start_index][start_index].tree_answer]
+    answers = [...hash.questions[start_index][start_index].answers,
+              hash.questions[start_index][start_index].tree_answer]
     answers = answers.filter(function(element){ return element != null })
 
     for (i = 0; i < answers.length; i++) {
       answer = answers[i][0]
-      question_index = answers[i][1]
+      next_qst_index = answers[i][1].next_qst
+      prev_qst_index = answers[i][2].prev_qst
+      prev_qst_index_if_not_answered = answers[i][3].prev_qst_if_not_answered
 
-      answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+      answers_html += `<li
+                      onclick="selectAnswer(${next_qst_index},${prev_qst_index},${prev_qst_index_if_not_answered})"
+                      class="list-group-item">
+                        ${answer}
+                      </li>`
 
       answers_ul.html(answers_html);
     }
   }; start();
 
-
+  // Function is called when user click on next button and submit the updated form
   function next() {
-    var answers_html = "";
+    answers_html = "";
+    answered = false;
+
     next_question.prop("disabled", true);
 
-
-    question = hash.questions[selected_index][selected_index].question
+    question = hash.questions[selected_index_to_next][selected_index_to_next].question
     question_div.html(`<h1>${question}</h1>`);
 
-    answers = [...hash.questions[selected_index][selected_index].answers, hash.questions[selected_index][selected_index].tree_answer]
+    answers = [...hash.questions[selected_index_to_next][selected_index_to_next].answers,
+              hash.questions[selected_index_to_next][selected_index_to_next].tree_answer]
     answers = answers.filter(function(element){ return element != null })
 
     for (i = 0; i < answers.length; i++) {
       answer = answers[i][0]
-      question_index = answers[i][1]
+      next_qst_index = answers[i][1].next_qst
+      prev_qst_index = answers[i][2].prev_qst
+      prev_qst_index_if_not_answered = answers[i][3].prev_qst_if_not_answered
 
-      answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+      answers_html += `<li
+                      onclick="selectAnswer(${next_qst_index},${prev_qst_index},${prev_qst_index_if_not_answered})"
+                      class="list-group-item">
+                        ${answer}
+                      </li>`
 
       answers_ul.html(answers_html);
     }
 
-    if (question_index > 0) prev_question.removeClass('hide');
-    if (selected_index == hash.questions.length - 1) next_question.addClass('hide');
+    if (next_qst_index > 0) prev_question.removeClass('hide');
+    if (selected_index_to_next == hash.questions.length - 1) next_question.addClass('hide');
 
-    console.log('selected index on submit:' + selected_index);
-    console.log('next question index:' + selected_index);
+    console.log('######## NEXT METHOD ########');
+    console.log('question indexes: ' + selected_index_to_next +', '+ selected_index_to_prev +', '+
+                selected_index_to_prev_if_not_answered);
+    console.log('current question index: ' + selected_index_to_next);
+    console.log('prev question index: ' + selected_index_to_prev);
+    console.log('prev question index if not answered: ' + selected_index_to_prev_if_not_answered);
+    console.log('answered: ' + answered);
 
-    stepperProgression(selected_index, hash.questions.length);
+    stepperProgression(selected_index_to_next, hash.questions.length);
   };
 
-  // function prev() {
-  //   var answers_html = "";
+  // Function is called when user click on previous button
+  function prev() {
+    answers_html = "";
 
-  //   question = hash.questions[selected_index][selected_index].question
-  //   question_div.html(`<h1>${question}</h1>`);
+    if (answered) {
+      prevIfAnswered();
+    } else {
+      prevIfNotAnswered();
+    }
 
-  //   answers = [...hash.questions[selected_index][selected_index].answers, hash.questions[selected_index][selected_index].tree_answer]
-  //   answers = answers.filter(function(element){ return element != null })
+    if (prev_qst_index == null) prev_question.addClass('hide');
 
-  //   for (i = 0; i < answers.length; i++) {
-  //     answer = answers[i][0]
-  //     question_index = answers[i][1]
+    console.log('######## PREV METHOD ########');
+    console.log('question indexes: ' + selected_index_to_next +', '+ selected_index_to_prev +', '+
+                selected_index_to_prev_if_not_answered);
+    console.log('next question index: ' + selected_index_to_next);
+    console.log('current question index: ' + selected_index_to_prev);
+    console.log('prev question index if not answered: ' + selected_index_to_prev_if_not_answered);
+    console.log('answered: ' + answered);
+  };
 
-  //     answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+  // Function is called when the user answered (answer selected)
+  function prevIfAnswered() {
+    question = hash.questions[selected_index_to_prev][selected_index_to_prev].question;
+    question_div.html(`<h1>${question}</h1>`);
 
-  //     answers_ul.html(answers_html);
-  //   }
+    answers = [...hash.questions[selected_index_to_prev][selected_index_to_prev].answers,
+              hash.questions[selected_index_to_prev][selected_index_to_prev].tree_answer];
+    answers = answers.filter(function(element){ return element != null });
 
-  //   if (question_index == 0) prev_question.addClass('hide');
-  //   if (selected_index < hash.questions.length - 1) next_question.removeClass('hide');
+    for (i = 0; i < answers.length; i++) {
+      answer = answers[i][0];
+      next_qst_index = answers[i][1].next_qst;
+      prev_qst_index = answers[i][2].prev_qst;
+      prev_qst_index_if_not_answered = answers[i][3].prev_qst_if_not_answered;
 
-  //   console.log('selected index on previous:' + selected_index);
-  //   console.log('next question index:' + selected_index);
-  // };
+      answers_html += `<li
+                      onclick="selectAnswer(${next_qst_index},${prev_qst_index},${prev_qst_index_if_not_answered})"
+                      class="list-group-item">
+                        ${answer}
+                      </li>`
 
-  function selectAnswer(question_index) {
-    selected_index = question_index;
+      answers_ul.html(answers_html);
+    };
+  };
+
+  // Function is called when the user do not answer (no answer selected)
+  function prevIfNotAnswered() {
+    number_of_prev_click ++
+    console.log('number of click on prev button: ' + number_of_prev_click)
+
+
+
+    question = hash.questions[selected_index_to_prev_if_not_answered][selected_index_to_prev_if_not_answered].question;
+    question_div.html(`<h1>${question}</h1>`);
+
+    answers = [...hash.questions[selected_index_to_prev_if_not_answered][selected_index_to_prev_if_not_answered].answers, hash.questions[selected_index_to_prev_if_not_answered][selected_index_to_prev_if_not_answered].tree_answer];
+    answers = answers.filter(function(element){ return element != null });
+
+    for (i = 0; i < answers.length; i++) {
+      answer = answers[i][0];
+      next_qst_index = answers[i][1].next_qst;
+      prev_qst_index = answers[i][2].prev_qst;
+      prev_qst_index_if_not_answered = answers[i][3].prev_qst_if_not_answered;
+
+      answers_html += `<li
+                      onclick="selectAnswer(${next_qst_index},${prev_qst_index},${prev_qst_index_if_not_answered})"
+                      class="list-group-item">
+                        ${answer}
+                      </li>`
+
+      answers_ul.html(answers_html);
+    };
+  };
+
+  // Function is called when the select an answer
+  function selectAnswer(next_qst_index, prev_qst_index) {
+    selected_index_to_next = next_qst_index;
+    selected_index_to_prev = prev_qst_index;
+    selected_index_to_prev_if_not_answered = prev_qst_index_if_not_answered;
+    answered = true;
+
     next_question.prop("disabled", false);
 
-    // tree_index = answers.indexOf(hash.questions[index][index].tree_answer)
-
-    console.log('selected index on input:' + selected_index)
+    console.log('######## SELECT ANSWER METHOD ########');
+    console.log('next question index: ' + selected_index_to_next);
+    console.log('prev question index: ' + selected_index_to_prev);
+    console.log('prev question index if not answered: ' + selected_index_to_prev_if_not_answered);
+    console.log('answered: ' + answered);
   }
 
+  // Function is called eac time next() and prev() methods are called
   function stepperProgression(current_question, questions_length) {
     var width = Math.round((current_question * 100) / questions_length)
 
