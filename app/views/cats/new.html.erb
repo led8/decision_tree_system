@@ -5,10 +5,15 @@
     <hr class="my-4">
     <ul class="answers col-6 offset-3 list-group"></ul>
 
-    <div class="col-6 offset-3 mt-5">
-      <button onclick="prev()" type="button" class="prev btn btn-primary">previous question</button>
-      <button onclick="next()" type="button" class="next btn btn-success">next question</button>
+    <div class="col-6 offset-3 mt-5 d-flex justify-content-between">
+      <button onclick="prev()" type="button" class="prev btn btn-primary">previous</button>
+      <button onclick="next()" type="button" class="next btn btn-success">next</button>
     </div>
+
+    <div class="stepper-container col-6 offset-3 mt-5">
+      <div class="stepper-progression"></div>
+    </div>
+    <div class="stepper-count col-6 offset-3 mt-5 d-flex justify-content-center"></div>
 
   </div>
 </div>
@@ -27,13 +32,22 @@
     cursor: pointer;
   }
 
-  .selected {
-    background: lightblue;
-    color: white;
+  .stepper-container {
+    border: 1px solid lightgrey;
+    height: 10px;
+    border-radius: 25px;
+    padding: 0;
   }
-   .selected:hover {
-    background: lightblue;
-    color: white;
+
+  .stepper-progression {
+    height: 100%;
+    width: 0%;
+    background-color: lightgrey;
+    border-radius: 25px;
+  }
+
+  .stepper-count {
+    font-size: 3rem;
   }
 
 </style>
@@ -116,6 +130,9 @@
   var i;
   var selected_index = null;
   var tree_index = null;
+  var stepper_width = '';
+  var stepper_progression = $('.stepper-progression');
+  var stepper_count = $('.stepper-count');
 
   function start() {
     prev_question.addClass('hide');
@@ -163,29 +180,34 @@
 
     console.log('selected index on submit:' + selected_index);
     console.log('next question index:' + selected_index);
+
+    stepperProgression(selected_index, hash.questions.length);
   };
 
-  function prev() {
-    var answers_html = "";
+  // function prev() {
+  //   var answers_html = "";
 
-    question = hash.questions[selected_index][selected_index].question
-    question_div.html(`<h1>${question}</h1>`);
+  //   question = hash.questions[selected_index][selected_index].question
+  //   question_div.html(`<h1>${question}</h1>`);
 
-    answers = [...hash.questions[selected_index][selected_index].answers, hash.questions[selected_index][selected_index].tree_answer]
-    answers = answers.filter(function(element){ return element != null })
+  //   answers = [...hash.questions[selected_index][selected_index].answers, hash.questions[selected_index][selected_index].tree_answer]
+  //   answers = answers.filter(function(element){ return element != null })
 
-    for (i = 0; i < answers.length; i++) {
-      answer = answers[i][0]
-      question_index = answers[i][1]
+  //   for (i = 0; i < answers.length; i++) {
+  //     answer = answers[i][0]
+  //     question_index = answers[i][1]
 
-      answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
+  //     answers_html += `<li onclick="selectAnswer(${question_index})" class="list-group-item">${answer}</li>`
 
-      answers_ul.html(answers_html);
-    }
+  //     answers_ul.html(answers_html);
+  //   }
 
-    if (index == 0) prev_question.addClass('hide');
-    if (index < hash.questions.length - 1) next_question.removeClass('hide');
-  };
+  //   if (question_index == 0) prev_question.addClass('hide');
+  //   if (selected_index < hash.questions.length - 1) next_question.removeClass('hide');
+
+  //   console.log('selected index on previous:' + selected_index);
+  //   console.log('next question index:' + selected_index);
+  // };
 
   function selectAnswer(question_index) {
     selected_index = question_index;
@@ -194,6 +216,13 @@
     // tree_index = answers.indexOf(hash.questions[index][index].tree_answer)
 
     console.log('selected index on input:' + selected_index)
+  }
+
+  function stepperProgression(current_question, questions_length) {
+    var width = Math.round((current_question * 100) / questions_length)
+
+    stepper_progression.css('width', `${width}%`);
+    stepper_count.html(`${10*Math.floor(width/10)}%`)
   }
 
 
